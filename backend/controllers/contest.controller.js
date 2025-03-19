@@ -55,7 +55,7 @@ const leetcode = async (req, res) => {
             .slice(-8).sort((a, b) => new Date(b.end) - new Date(a.end));
 
         // console.log("Leetcode Contests:", response.data.objects);
-        return res.status(200).json({ upcomingContests, upcomingContests });
+        return res.status(200).json({ upcomingContests, pastContests });
     } catch (error) {
         console.error("Error fetching Leetcode contests:", error.message);
     }
