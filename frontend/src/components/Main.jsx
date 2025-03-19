@@ -9,7 +9,7 @@ const Main = () => {
     const [bookmarkedContests, setBookmarkedContests] = useState(() => {
         return JSON.parse(localStorage.getItem("bookmarkedContests")) || [];
     });
-    const [filteredContests, setFilteredContests] = useState([]);
+    const [filteredContests, setFilteredContests] = useState({ upcoming: [], past: [] })
     const [visibleContests, setVisibleContests] = useState(() => {
         return JSON.parse(localStorage.getItem("visibleContests")) || ["codeforces", "leetcode", "atcoder", "codechef"];
     });
@@ -26,10 +26,20 @@ const Main = () => {
     useEffect(() => {
         localStorage.setItem("visibleContests", JSON.stringify(visibleContests));
 
-        const filteredUpcoming = upcomingContests.filter(contest => visibleContests.includes(contest.type));
-        const filteredPast = pastContests.filter(contest => visibleContests.includes(contest.type));
+        const filteredUpcoming = Array.isArray(upcomingContests)
+            ? upcomingContests
+                .filter(contest => visibleContests.includes(contest.type))
+                .sort((a, b) => a.startTimeSeconds - b.startTimeSeconds)
+            : [];
+        const filteredPast = Array.isArray(pastContests)
+            ? pastContests
+                .filter(contest => visibleContests.includes(contest.type))
+                .sort((a, b) => b.startTimeSeconds - a.startTimeSeconds)
+            : [];
 
         setFilteredContests({ upcoming: filteredUpcoming, past: filteredPast });
+
+        console.log(filteredContests.upcoming);
     }, [visibleContests, upcomingContests, pastContests]);
 
     const fetchContests = async (platform) => {
@@ -37,16 +47,27 @@ const Main = () => {
             const response = await axios.get(`http://localhost:8000/api/contests/${platform}`);
             const contestData = response.data;
 
+            console.log(contestData);
+
+            const mapContestData = (contest) => ({
+                id: contest.id,
+                name: contest.name || contest.event,
+                link: contest.href || `https://codeforces.com/contest/${contest.id}`,
+                type: platform,
+                startTimeSeconds: contest.startTimeSeconds || Math.floor(new Date(contest.start).getTime() / 1000),
+                durationSeconds: contest.durationSeconds || contest.duration,
+                relativeTimeSeconds: contest.relativeTimeSeconds || Math.floor(new Date(contest.start).getTime() / 1000) - Math.floor(Date.now() / 1000),
+            });
+
             setUpcomingContests((prev) => {
-                const merged = [...prev, ...contestData.upcomingContests.map(c => ({ ...c, type: platform }))];
+                const merged = [...prev, ...(contestData.upcomingContests || []).map(mapContestData)];
                 return Array.from(new Map(merged.map(contest => [contest.id, contest])).values());
             });
 
             setPastContests((prev) => {
-                const merged = [...prev, ...contestData.pastContests.map(c => ({ ...c, type: platform }))];
+                const merged = [...prev, ...(contestData.pastContests || []).map(mapContestData)];
                 return Array.from(new Map(merged.map(contest => [contest.id, contest])).values());
             });
-
         } catch (error) {
             console.error(`Error fetching ${platform} contests:`, error);
         }
@@ -82,7 +103,7 @@ const Main = () => {
                 {["codeforces", "leetcode", "atcoder", "codechef"].map(platform => (
                     <button
                         key={platform}
-                        className={`mx-1 btn ${visibleContests.includes(platform) ? 'bg-blue-600 text-white' : 'btn-outline border-gray-300 text-gray-500'} hover:bg-gray-200 rounded-full`}
+                        className={`mx-1 btn ${visibleContests?.includes(platform) ? 'bg-blue-600 text-white' : 'btn-outline border-gray-300 text-gray-500'} hover:bg-gray-200 rounded-full`}
                         onClick={() => handleClick(platform)}
                     >
                         {platform.charAt(0).toUpperCase() + platform.slice(1)}
@@ -90,16 +111,34 @@ const Main = () => {
                 ))}
             </div>
 
-            <div className="tabs tabs-lifted sm:mx-5 md:mx-10 lg:mx-10 bg-grey-500">
-                <button className={`tab border border-grey-300 ${activeTab === 1 ? 'tab-active' : ''}`} onClick={() => setActiveTab(1)}>Upcoming</button>
-                <button className={`tab ${activeTab === 2 ? 'tab-active' : ''}`} onClick={() => setActiveTab(2)}>Recent</button>
-                <button className={`tab ${activeTab === 3 ? 'tab-active' : ''}`} onClick={() => setActiveTab(3)}>Bookmarked</button>
+            <div className="tabs tabs-lifted sm:mx-5 md:mx-10 lg:mx-10 p-2 ">
+                <button
+                    className={`tab mx-2 py-2 px-4 font-bold rounded-full ${activeTab === 1 ? 'bg-gray-300 text-white ' : 'hover:bg-gray-300'
+                        }`}
+                    onClick={() => setActiveTab(1)}
+                >
+                    Upcoming
+                </button>
+                <button
+                    className={`tab mx-2 py-2 px-4 font-bold rounded-full ${activeTab === 2 ? 'bg-gray-300 text-white' : 'hover:bg-gray-300'
+                        }`}
+                    onClick={() => setActiveTab(2)}
+                >
+                    Recent
+                </button>
+                <button
+                    className={`tab mx-2 py-2 px-4 font-bold rounded-full ${activeTab === 3 ? 'bg-gray-300 text-white' : 'hover:bg-gray-300'
+                        }`}
+                    onClick={() => setActiveTab(3)}
+                >
+                    Bookmarked
+                </button>
             </div>
 
             <div className="">
                 {activeTab === 1 && (
                     <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:px-5 md:px-10 lg:px-10">
-                        {filteredContests.upcoming?.map((contest) => (
+                        {filteredContests?.upcoming?.map((contest) => (
                             <ContestCard
                                 key={contest.id}
                                 contest={contest}
@@ -113,7 +152,7 @@ const Main = () => {
 
                 {activeTab === 2 && (
                     <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:px-5 md:px-10 lg:px-10">
-                        {filteredContests.past?.map((contest) => (
+                        {filteredContests?.past?.map((contest) => (
                             <ContestCard
                                 key={contest.id}
                                 contest={contest}
@@ -130,7 +169,7 @@ const Main = () => {
                         {bookmarkedContests.length === 0 ? (
                             <p className="text-white">No bookmarked contests.</p>
                         ) : (
-                            bookmarkedContests.map((contest) => (
+                            bookmarkedContests?.map((contest) => (
                                 <ContestCard
                                     key={contest.id}
                                     contest={contest}
