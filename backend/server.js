@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const contestRoutes = require("./routes/contest.route.js");
+const connectDB = require("./lib/db.js");
 
 const app = express();
 dotenv.config();
@@ -19,4 +20,5 @@ app.use("/api/contests", contestRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
+    connectDB();
 });

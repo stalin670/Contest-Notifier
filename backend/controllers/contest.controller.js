@@ -1,4 +1,5 @@
 const axios = require('axios');
+const Contest = require("../models/Contest.js");
 
 // const API_URL = "https://clist.by/api/v4/contest/";
 // const USERNAME = "Stalin67";
@@ -30,6 +31,41 @@ const codeforces = async (req, res) => {
     }
 };
 
+const addSolution = async (req, res) => {
+    const { contestId, name, platform, solutionLink } = req.body;
+
+    try {
+        console.log("Hey");
+        let contest = await Contest.findOne({ contestId });
+        if (contest) {
+            contest.solutionLink = solutionLink;
+            await contest.save();
+        } else {
+            contest = new Contest({ contestId, name, platform, solutionLink });
+            await contest.save();
+        }
+
+        res.status(200).json({ message: "Solution link added/updated", contest });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+const getSolution = async (req, res) => {
+    try {
+        const contest = await Contest.findOne({ contestId: req.params.contestId });
+        if (contest) {
+            res.json({ solutionLink: contest.solutionLink });
+        } else {
+            res.status(404).json({ message: "No solution found" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
 module.exports = {
-    codeforces
+    codeforces,
+    getSolution,
+    addSolution
 };
