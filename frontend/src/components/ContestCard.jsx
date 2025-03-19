@@ -3,6 +3,7 @@ import { formatDate, formatDuration, formatRelativeTime } from "../utils/timeHel
 import { Search } from 'lucide-react';
 import axios from "axios";
 import { MdAdd } from "react-icons/md";
+import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 
 const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
 
@@ -49,7 +50,7 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
                     {contest.type === "CF" || "ICPC" ? 'Codeforces' : 'Leetcode'}
                 </span>
                 <button className="ml-auto text-gray-400 hover:text-black cursor-pointer" onClick={() => toggleBookmark(contest)}>
-                    {isBookmarked ? "⭐" : "☆"}
+                    {isBookmarked ? <FaBookmark className="text-black" /> : <FaRegBookmark />}
                 </button>
             </div>
 
@@ -68,7 +69,7 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
                 </div>)}
 
             {type === "past" && (
-                <div className={`mt-3 bg-gray-100 text-blue-600 font-medium p-2 rounded-lg flex items-center ${solutionLink ? 'bg-red-500' : 'bg-green-500'}`}>
+                <div className={`mt-3 bg-gray-100 text-blue-600 font-medium p-2 rounded-lg flex items-center ${solutionLink ? 'bg-red-500' : 'bg-green-400'}`}>
                     {solutionLink ? (
                         <a href={solutionLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 flex items-center text-white">
                             <Search className="mr-2 cursor-pointer" /> Watch YouTube Solution
