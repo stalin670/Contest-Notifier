@@ -4,12 +4,18 @@ import { Search } from 'lucide-react';
 import axios from "axios";
 import { MdAdd } from "react-icons/md";
 import { FaRegBookmark, FaBookmark } from "react-icons/fa";
+import { SiLeetcode, SiCodeforces, SiCodechef } from "react-icons/si";
+import { MdOutlineComputer } from "react-icons/md";
 
 const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
 
     const [solutionLink, setSolutionLink] = useState(null);
     const [newLink, setNewLink] = useState("");
     const [showInput, setShowInput] = useState(false);
+
+    // console.log(contest);
+
+    // console.log("Inside the contest card", contest);
 
     useEffect(() => {
         if (type === "past") {
@@ -29,7 +35,7 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
     const handleAddSolution = async () => {
         if (!newLink) return;
         try {
-            console.log("I'm here atleast")
+            // console.log("I'm here atleast")
             await axios.post("http://localhost:8000/api/contests/add-solution", {
                 contestId: contest.id,
                 name: contest.name,
@@ -43,11 +49,30 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
         }
     };
 
+    const getPlatformIcon = (type) => {
+        switch (type.toLowerCase()) {
+            case "cf":
+            case "icpc":
+            case "codeforces":
+                return <SiCodeforces className="inline-block mr-2" />;
+            case "leetcode":
+                return <SiLeetcode className="inline-block mr-2 text-yellow-400" />;
+            case "atcoder":
+                return <MdOutlineComputer className="inline-block mr-2 text-gray-500" />;
+            default:
+                return <SiCodechef className="inline-block mr-2 text-red-500" />;
+        }
+    };
+
     return (
         <div className="bg-white border border-gray-300 shadow-md rounded-2xl p-5 flex flex-col h-full" >
             <div className="flex items-center">
-                <span className="bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                    {contest.type === "CF" || "ICPC" ? 'Codeforces' : 'Leetcode'}
+                <span className="text-black border border-gray-300 text-sm font-semibold px-3 py-1 rounded-full">
+                    {getPlatformIcon(contest.type)}
+                    {contest.type === "CF" || contest.type === "ICPC" || contest.type === "codeforces" ? "Codeforces" :
+                        contest.type === "leetcode" ? "Leetcode" :
+                            contest.type === "atcoder" ? "Atcoder" :
+                                "Codechef"}
                 </span>
                 <button className="ml-auto text-gray-400 hover:text-black cursor-pointer" onClick={() => toggleBookmark(contest)}>
                     {isBookmarked ? <FaBookmark className="text-black" /> : <FaRegBookmark />}
@@ -55,7 +80,11 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
             </div>
 
             <h2 className="mt-3 text-lg font-semibold text-blue-600 flex-grow">
-                {contest.name} <a href={`https://codeforces.com/contest/${contest.id}`} className="text-blue-400">🔗</a>
+                {contest.name} <a href={
+                    contest.type.toLowerCase() === "codeforces" || contest.type.toLowerCase() === "cf" || contest.type.toLowerCase() === "icpc"
+                        ? `https://codeforces.com/contest/${contest.id}`
+                        : contest.link
+                } className="text-blue-400 cursor-pointer">🔗</a>
             </h2>
 
             <div className="mt-2 text-gray-600 text-sm">
@@ -80,7 +109,7 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
                                 <div className="flex w-full">
                                     <input
                                         type="text"
-                                        className="p-1 border rounded-md flex-1"
+                                        className="p-1 border rounded-md flex-1 text-black"
                                         placeholder="Enter YouTube link"
                                         value={newLink}
                                         onChange={(e) => setNewLink(e.target.value)}
