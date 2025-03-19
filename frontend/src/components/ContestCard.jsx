@@ -1,0 +1,107 @@
+import React, { useState, useEffect } from 'react'
+import { formatDate, formatDuration, formatRelativeTime } from "../utils/timeHelper.js"
+import { Search } from 'lucide-react';
+import axios from "axios";
+import { MdAdd } from "react-icons/md";
+
+const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
+
+    const [solutionLink, setSolutionLink] = useState(null);
+    const [newLink, setNewLink] = useState("");
+    const [showInput, setShowInput] = useState(false);
+
+    useEffect(() => {
+        if (type === "past") {
+            fetchSolution();
+        }
+    }, []);
+
+    const fetchSolution = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8000/api/contests/solution/${contest.id}`);
+            setSolutionLink(response.data.solutionLink);
+        } catch (error) {
+            console.error("No solution found");
+        }
+    };
+
+    const handleAddSolution = async () => {
+        if (!newLink) return;
+        try {
+            console.log("I'm here atleast")
+            await axios.post("http://localhost:8000/api/contests/add-solution", {
+                contestId: contest.id,
+                name: contest.name,
+                platform: contest.type === "CF" ? "Codeforces" : "Leetcode",
+                solutionLink: newLink,
+            });
+            setSolutionLink(newLink);
+            setShowInput(false);
+        } catch (error) {
+            console.error("Error adding solution link", error);
+        }
+    };
+
+    return (
+        <div className="bg-white border border-gray-300 shadow-md rounded-2xl p-5 flex flex-col h-full" >
+            <div className="flex items-center">
+                <span className="bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                    {contest.type === "CF" || "ICPC" ? 'Codeforces' : 'Leetcode'}
+                </span>
+                <button className="ml-auto text-gray-400 hover:text-black cursor-pointer" onClick={() => toggleBookmark(contest)}>
+                    {isBookmarked ? "⭐" : "☆"}
+                </button>
+            </div>
+
+            <h2 className="mt-3 text-lg font-semibold text-blue-600 flex-grow">
+                {contest.name} <a href={`https://codeforces.com/contest/${contest.id}`} className="text-blue-400">🔗</a>
+            </h2>
+
+            <div className="mt-2 text-gray-600 text-sm">
+                <p><strong>Starts:</strong> {formatDate(contest.startTimeSeconds)}</p>
+                <p><strong>Duration:</strong> {formatDuration(contest.durationSeconds)}</p>
+            </div>
+
+            {type !== "past" && (
+                <div className="mt-auto bg-gray-100 text-blue-600 font-medium p-2 rounded-lg flex items-center">
+                    Time: <span className="ml-1">{formatRelativeTime(contest.relativeTimeSeconds)}</span>
+                </div>)}
+
+            {type === "past" && (
+                <div className={`mt-3 bg-gray-100 text-blue-600 font-medium p-2 rounded-lg flex items-center ${solutionLink ? 'bg-red-500' : 'bg-green-500'}`}>
+                    {solutionLink ? (
+                        <a href={solutionLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 flex items-center text-white">
+                            <Search className="mr-2 cursor-pointer" /> Watch YouTube Solution
+                        </a>
+                    ) : (
+                        <div>
+                            {showInput ? (
+                                <div className="flex w-full">
+                                    <input
+                                        type="text"
+                                        className="p-1 border rounded-md flex-1"
+                                        placeholder="Enter YouTube link"
+                                        value={newLink}
+                                        onChange={(e) => setNewLink(e.target.value)}
+                                    />
+                                    <button onClick={handleAddSolution} className="ml-2 px-3 py-1 bg-blue-500 text-white rounded-md cursor-pointer">
+                                        Save
+                                    </button>
+                                </div>
+                            ) : (
+                                <button onClick={() => setShowInput(true)} className="flex items-center cursor-pointer text-black">
+                                    <MdAdd className='cursor-pointer mr-2 size-7' /> Add Solution Link
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
+        </div >
+    );
+}
+
+export default ContestCard
+
+
+
