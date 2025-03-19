@@ -1,0 +1,150 @@
+import React, { useEffect, useState } from 'react';
+import ContestCard from './ContestCard';
+import axios from "axios";
+
+const Main = () => {
+    const [activeTab, setActiveTab] = useState(1);
+    const [upcomingContests, setUpcomingContests] = useState([]);
+    const [pastContests, setPastContests] = useState([]);
+    const [bookmarkedContests, setBookmarkedContests] = useState(() => {
+        return JSON.parse(localStorage.getItem("bookmarkedContests")) || [];
+    });
+    const [filteredContests, setFilteredContests] = useState([]);
+    const [visibleContests, setVisibleContests] = useState(() => {
+        return JSON.parse(localStorage.getItem("visibleContests")) || ["codeforces", "leetcode", "atcoder", "codechef"];
+    });
+
+    useEffect(() => {
+        const storedPlatforms = JSON.parse(localStorage.getItem("visibleContests")) || ["codeforces", "leetcode", "atcoder", "codechef"];
+        setVisibleContests(storedPlatforms);
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("bookmarkedContests", JSON.stringify(bookmarkedContests));
+    }, [bookmarkedContests]);
+
+    useEffect(() => {
+        localStorage.setItem("visibleContests", JSON.stringify(visibleContests));
+
+        const filteredUpcoming = upcomingContests.filter(contest => visibleContests.includes(contest.type));
+        const filteredPast = pastContests.filter(contest => visibleContests.includes(contest.type));
+
+        setFilteredContests({ upcoming: filteredUpcoming, past: filteredPast });
+    }, [visibleContests, upcomingContests, pastContests]);
+
+    const fetchContests = async (platform) => {
+        try {
+            const response = await axios.get(`http://localhost:8000/api/contests/${platform}`);
+            const contestData = response.data;
+
+            setUpcomingContests((prev) => {
+                const merged = [...prev, ...contestData.upcomingContests.map(c => ({ ...c, type: platform }))];
+                return Array.from(new Map(merged.map(contest => [contest.id, contest])).values());
+            });
+
+            setPastContests((prev) => {
+                const merged = [...prev, ...contestData.pastContests.map(c => ({ ...c, type: platform }))];
+                return Array.from(new Map(merged.map(contest => [contest.id, contest])).values());
+            });
+
+        } catch (error) {
+            console.error(`Error fetching ${platform} contests:`, error);
+        }
+    };
+
+    useEffect(() => {
+        const platforms = ["codeforces", "leetcode", "atcoder", "codechef"];
+        platforms.forEach(fetchContests);
+    }, []);
+
+    const handleClick = (platform) => {
+        setVisibleContests(prev =>
+            prev.includes(platform)
+                ? prev.filter(p => p !== platform)
+                : [...prev, platform]
+        );
+    };
+
+    const toggleBookmark = (contest) => {
+        setBookmarkedContests((prev) => {
+            const isBookmarked = prev.some((c) => c.id === contest.id);
+            if (isBookmarked) {
+                return prev.filter((c) => c.id !== contest.id);
+            } else {
+                return [...prev, contest];
+            }
+        });
+    };
+
+    return (
+        <div className="">
+            <div className="text-white text-center p-4 mx-auto">
+                {["codeforces", "leetcode", "atcoder", "codechef"].map(platform => (
+                    <button
+                        key={platform}
+                        className={`mx-1 btn ${visibleContests.includes(platform) ? 'bg-blue-600 text-white' : 'btn-outline border-gray-300 text-gray-500'} hover:bg-gray-200 rounded-full`}
+                        onClick={() => handleClick(platform)}
+                    >
+                        {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                    </button>
+                ))}
+            </div>
+
+            <div className="tabs tabs-lifted sm:mx-5 md:mx-10 lg:mx-10 bg-grey-500">
+                <button className={`tab border border-grey-300 ${activeTab === 1 ? 'tab-active' : ''}`} onClick={() => setActiveTab(1)}>Upcoming</button>
+                <button className={`tab ${activeTab === 2 ? 'tab-active' : ''}`} onClick={() => setActiveTab(2)}>Recent</button>
+                <button className={`tab ${activeTab === 3 ? 'tab-active' : ''}`} onClick={() => setActiveTab(3)}>Bookmarked</button>
+            </div>
+
+            <div className="">
+                {activeTab === 1 && (
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:px-5 md:px-10 lg:px-10">
+                        {filteredContests.upcoming?.map((contest) => (
+                            <ContestCard
+                                key={contest.id}
+                                contest={contest}
+                                type="upcoming"
+                                isBookmarked={bookmarkedContests.some((c) => c.id === contest.id)}
+                                toggleBookmark={toggleBookmark}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {activeTab === 2 && (
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:px-5 md:px-10 lg:px-10">
+                        {filteredContests.past?.map((contest) => (
+                            <ContestCard
+                                key={contest.id}
+                                contest={contest}
+                                type="past"
+                                isBookmarked={bookmarkedContests.some((c) => c.id === contest.id)}
+                                toggleBookmark={toggleBookmark}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {activeTab === 3 && (
+                    <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:px-5 md:px-10 lg:px-10">
+                        {bookmarkedContests.length === 0 ? (
+                            <p className="text-white">No bookmarked contests.</p>
+                        ) : (
+                            bookmarkedContests.map((contest) => (
+                                <ContestCard
+                                    key={contest.id}
+                                    contest={contest}
+                                    type="bookmarked"
+                                    isBookmarked={true}
+                                    toggleBookmark={toggleBookmark}
+                                />
+                            ))
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default Main;
