@@ -1,11 +1,10 @@
-import ContestList from './components/ContestList'
-import './App.css'
+import React from 'react'
+import Homepage from './pages/Homepage'
 
-function App() {
-
+const App = () => {
   return (
     <div>
-      <ContestList />
+      <Homepage />
     </div>
   )
 }
