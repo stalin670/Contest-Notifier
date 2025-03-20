@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useContext } from "react";
+import { ThemeContext } from "../themeContext.jsx";
 
 const Navbar = () => {
+    const { theme, toggleTheme } = useContext(ThemeContext);
     return (
         <div>
             <div className="navbar bg-base-100 shadow-sm">
@@ -12,11 +14,9 @@ const Navbar = () => {
                 <div className="flex-1">
                     <a className="btn btn-ghost text-xl">Contest Notifier</a>
                 </div>
-                <label className="swap swap-rotate mr-10">
-                    <input type="checkbox" className="theme-controller" value="synthwave" />
-
+                <label className="swap swap-rotate mr-10" onClick={toggleTheme}>
                     <svg
-                        className="swap-off h-7 w-7 fill-current"
+                        className={`h-7 w-7 fill-current ${theme === "dark" ? "swap-off" : "swap-on"}`}
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24">
                         <path
@@ -24,7 +24,7 @@ const Navbar = () => {
                     </svg>
 
                     <svg
-                        className="swap-on h-7 w-7 fill-current"
+                        className={`h-7 w-7 fill-current ${theme === "dark" ? "swap-on" : "swap-off"}`}
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24">
                         <path
