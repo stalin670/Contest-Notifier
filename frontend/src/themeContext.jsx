@@ -5,8 +5,8 @@ const ThemeContext = createContext();
 const getTheme = () => {
     const theme = localStorage.getItem("theme");
     if (!theme) {
-        localStorage.setItem("theme", "dark-theme");
-        return "dark-theme";
+        localStorage.setItem("theme", "dark");
+        return "dark";
     } else {
         return theme;
     }
@@ -16,11 +16,11 @@ const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(getTheme);
 
     const toggleTheme = () => {
-        setTheme((prevTheme) => (prevTheme === "dark-theme" ? "light-theme" : "dark-theme"));
+        setTheme((prevTheme) => (prevTheme === "dark" ? "light" : "dark"));
     };
 
     useEffect(() => {
-        document.documentElement.classList.remove("light-theme", "dark-theme");
+        document.documentElement.classList.remove("light", "dark");
         document.documentElement.classList.add(theme);
         localStorage.setItem("theme", theme);
     }, [theme]);
