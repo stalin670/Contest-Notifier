@@ -5,16 +5,16 @@ const Navbar = () => {
     const { theme, toggleTheme } = useContext(ThemeContext);
     return (
         <div>
-            <div className="navbar bg-base-100 shadow-sm">
-                <div className="flex-none">
+            <div className="navbar bg-base-100 shadow-sm dark:bg-black dark:border-b dark:border-white">
+                <div className="flex-none dark:text-white">
                     <button className="btn btn-square btn-ghost">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-5 w-5 stroke-current"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path> </svg>
                     </button>
                 </div>
                 <div className="flex-1">
-                    <a className="btn btn-ghost text-xl">Contest Notifier</a>
+                    <a className="btn btn-ghost text-xl dark:text-white">Contest Notifier</a>
                 </div>
-                <label className="swap swap-rotate mr-10" onClick={toggleTheme}>
+                <label className="swap swap-rotate mr-10 dark:text-white" onClick={toggleTheme}>
                     <svg
                         className={`h-7 w-7 fill-current ${theme === "dark" ? "swap-off" : "swap-on"}`}
                         xmlns="http://www.w3.org/2000/svg"
