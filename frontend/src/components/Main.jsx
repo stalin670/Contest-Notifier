@@ -44,7 +44,7 @@ const Main = () => {
 
     const fetchContests = async (platform) => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/contests/${platform}`);
+            const response = await axios.get(`https://contest-notifier-xg6a.onrender.com/api/contests/${platform}`);
             const contestData = response.data;
 
             console.log(contestData);

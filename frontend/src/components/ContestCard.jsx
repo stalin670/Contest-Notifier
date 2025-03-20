@@ -25,7 +25,7 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
 
     const fetchSolution = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/contests/solution/${contest.id}`);
+            const response = await axios.get(`https://contest-notifier-xg6a.onrender.com/api/contests/solution/${contest.id}`);
             setSolutionLink(response.data.solutionLink);
         } catch (error) {
             console.error("No solution found");
@@ -36,7 +36,7 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
         if (!newLink) return;
         try {
             // console.log("I'm here atleast")
-            await axios.post("http://localhost:8000/api/contests/add-solution", {
+            await axios.post("https://contest-notifier-xg6a.onrender.com/api/contests/add-solution", {
                 contestId: contest.id,
                 name: contest.name,
                 platform: contest.type === "CF" ? "Codeforces" : "Leetcode",
