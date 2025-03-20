@@ -75,7 +75,7 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
                                 "Codechef"}
                 </span>
                 <button className="ml-auto text-gray-400 hover:text-black cursor-pointer" onClick={() => toggleBookmark(contest)}>
-                    {isBookmarked ? <FaBookmark className="text-black" /> : <FaRegBookmark />}
+                    {isBookmarked ? <FaBookmark className="text-black dark:text-white" /> : <FaRegBookmark className="dark:text-white" />}
                 </button>
             </div>
 
