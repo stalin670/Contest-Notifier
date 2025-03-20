@@ -65,9 +65,9 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
     };
 
     return (
-        <div className="bg-white border border-gray-300 shadow-md rounded-2xl p-5 flex flex-col h-full" >
+        <div className="bg-white border border-gray-300 shadow-md rounded-2xl p-5 flex flex-col h-full dark:bg-black" >
             <div className="flex items-center">
-                <span className="text-black border border-gray-300 text-sm font-semibold px-3 py-1 rounded-full">
+                <span className="text-black border border-gray-300 text-sm font-semibold px-3 py-1 rounded-full dark:border-blue-500 dark:bg-blue-500 dark:text-black">
                     {getPlatformIcon(contest.type)}
                     {contest.type === "CF" || contest.type === "ICPC" || contest.type === "codeforces" ? "Codeforces" :
                         contest.type === "leetcode" ? "Leetcode" :
@@ -87,13 +87,13 @@ const ContestCard = ({ contest, type, isBookmarked, toggleBookmark }) => {
                 } className="text-blue-400 cursor-pointer">🔗</a>
             </h2>
 
-            <div className="mt-2 text-gray-600 text-sm">
+            <div className="mt-2 text-gray-600 text-sm dark:text-white">
                 <p><strong>Starts:</strong> {formatDate(contest.startTimeSeconds)}</p>
                 <p><strong>Duration:</strong> {formatDuration(contest.durationSeconds)}</p>
             </div>
 
             {type !== "past" && (
-                <div className="mt-auto bg-gray-100 text-blue-600 font-medium p-2 rounded-lg flex items-center">
+                <div className="mt-2 bg-gray-100 text-blue-600 font-medium p-2 rounded-lg flex items-center justify-center dark:bg-blue-500 dark:text-white">
                     Time: <span className="ml-1">{formatRelativeTime(contest.relativeTimeSeconds)}</span>
                 </div>)}
 
