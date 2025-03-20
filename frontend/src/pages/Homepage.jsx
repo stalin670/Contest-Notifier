@@ -1,8 +1,7 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
 import Main from '../components/Main'
-import { Info } from "lucide-react";
-import { FaTwitter, FaGithub } from "react-icons/fa";
+import { FaTwitter, FaGithub, FaLinkedin } from "react-icons/fa";
 
 const Homepage = () => {
     return (
@@ -16,7 +15,7 @@ const Homepage = () => {
 
                 <div className="flex items-center space-x-4">
                     <a href="https://linkedin.com/in/stalin67" className="flex items-center hover:text-gray-700 dark:hover:text-blue-500">
-                        <span className="mr-1">👤</span> Coded by Amit Yadav
+                        <span className="mr-1">< FaLinkedin /></span> Amit Yadav
                     </a>
                     <a href="https://twitter.com/stalin670" target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-gray-700 dark:hover:text-blue-500">
                         <FaTwitter size={16} className="mr-1" /> @stalin670
