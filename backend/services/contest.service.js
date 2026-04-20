@@ -48,14 +48,21 @@ const fetchClistRaw = async (host) => {
     });
 };
 
+const settle = async (p) => {
+    try {
+        return { status: "fulfilled", value: await p };
+    } catch (reason) {
+        return { status: "rejected", reason };
+    }
+};
+
 const fetchAllNormalized = async () => {
     return cache.getOrSet("all:normalized", CACHE_TTL, async () => {
-        const [cf, lc, cc, ac] = await Promise.allSettled([
-            fetchCodeforcesRaw(),
-            fetchClistRaw("leetcode.com"),
-            fetchClistRaw("codechef.com"),
-            fetchClistRaw("atcoder.jp"),
-        ]);
+        const cfPromise = settle(fetchCodeforcesRaw());
+        const lc = await settle(fetchClistRaw("leetcode.com"));
+        const cc = await settle(fetchClistRaw("codechef.com"));
+        const ac = await settle(fetchClistRaw("atcoder.jp"));
+        const cf = await cfPromise;
 
         const pick = (r) => (r.status === "fulfilled" ? r.value : { upcomingContests: [], pastContests: [] });
 
