@@ -1,0 +1,24 @@
+{
+    "name": "contest-notifier",
+    "private": true,
+    "version": "1.0.0",
+    "description": "Track programming contests across Codeforces, LeetCode, AtCoder, CodeChef",
+    "scripts": {
+        "prepare": "husky",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
+    },
+    "devDependencies": {
+        "husky": "^9.1.7",
+        "lint-staged": "^15.2.10",
+        "prettier": "^3.3.3"
+    },
+    "lint-staged": {
+        "backend/**/*.{js,json}": [
+            "prettier --write"
+        ],
+        "frontend/**/*.{js,jsx,ts,tsx,json,css,html}": [
+            "prettier --write"
+        ]
+    }
+}

@@ -1,37 +1,30 @@
-export const formatDate = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-    });
+import { formatInTimeZone } from "date-fns-tz";
+import { formatDistanceStrict, intervalToDuration } from "date-fns";
+
+export const formatDate = (iso, tz) => {
+    try {
+        return formatInTimeZone(new Date(iso), tz || "UTC", "EEE, MMM d, h:mm a zzz");
+    } catch {
+        return "—";
+    }
 };
 
 export const formatDuration = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${hours}h ${minutes}m`;
+    if (!seconds) return "—";
+    const d = intervalToDuration({ start: 0, end: seconds * 1000 });
+    const parts = [];
+    if (d.days) parts.push(`${d.days}d`);
+    if (d.hours) parts.push(`${d.hours}h`);
+    if (d.minutes) parts.push(`${d.minutes}m`);
+    return parts.join(" ") || "0m";
 };
 
-export const formatRelativeTime = (relativeTimeSeconds) => {
-    let timeLeft = Math.abs(relativeTimeSeconds);
-    const days = Math.floor(timeLeft / (24 * 3600));
-    timeLeft %= 24 * 3600;
-    const hours = Math.floor(timeLeft / 3600);
-    timeLeft %= 3600;
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-};
-
-export const formatRelativeTime1 = (seconds) => {
-    let absSeconds = Math.abs(seconds);
-    let hours = Math.floor(absSeconds / 3600);
-    let minutes = Math.floor((absSeconds % 3600) / 60);
-    let secs = absSeconds % 60;
-
-    return `${hours}h ${minutes}m ${secs}s`;
+export const formatRelativeTime = (iso) => {
+    try {
+        const diff = new Date(iso) - new Date();
+        if (diff <= 0) return "started";
+        return `in ${formatDistanceStrict(new Date(iso), new Date())}`;
+    } catch {
+        return "—";
+    }
 };

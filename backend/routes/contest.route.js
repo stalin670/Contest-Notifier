@@ -1,13 +1,40 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
+const {
+    codeforces,
+    getSolution,
+    addSolution,
+    leetcode,
+    codechef,
+    atcoder,
+    all,
+} = require("../controllers/contest.controller.js");
+const { validate } = require("../middleware/validate.js");
+const { addSolutionSchema } = require("../schemas/contest.schema.js");
+
 const router = express.Router();
-const { codeforces, getSolution, addSolution, leetcode, codechef, atcoder } = require("../controllers/contest.controller.js");
 
-router.get("/codeforces", codeforces);
-router.get("/leetcode", leetcode);
-router.get("/codechef", codechef);
-router.get("/atcoder", atcoder);
+const readLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
-router.post("/add-solution", addSolution);
-router.get("/solution/:contestId", getSolution);
+const writeLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+router.get("/all", readLimiter, all);
+router.get("/codeforces", readLimiter, codeforces);
+router.get("/leetcode", readLimiter, leetcode);
+router.get("/codechef", readLimiter, codechef);
+router.get("/atcoder", readLimiter, atcoder);
+router.get("/solution/:contestId", readLimiter, getSolution);
+
+router.post("/add-solution", writeLimiter, validate(addSolutionSchema), addSolution);
 
 module.exports = router;

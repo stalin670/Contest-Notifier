@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
 
-const ContestSchema = new mongoose.Schema({
-    contestId: { type: String, required: true, unique: true },
-    name: String,
-    platform: String,
-    solutionLink: String,
-});
+const ContestSchema = new mongoose.Schema(
+    {
+        contestId: { type: String, required: true, unique: true, index: true },
+        name: { type: String, required: true },
+        platform: { type: String, required: true, index: true },
+        solutionLink: { type: String, required: true },
+    },
+    { timestamps: true }
+);
 
-const Contest = mongoose.model("Contest", ContestSchema);
-
-module.exports = Contest;
+module.exports = mongoose.model("Contest", ContestSchema);

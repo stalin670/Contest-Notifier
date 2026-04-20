@@ -1,12 +1,12 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
+const env = require("./env");
 
 const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log(`Database Connected`);
-    } catch (error) {
-        console.log(error);
-    }
-}
+    mongoose.connection.on("error", (err) => console.error("[mongo] error:", err.message));
+    mongoose.connection.on("disconnected", () => console.warn("[mongo] disconnected"));
+
+    await mongoose.connect(env.MONGO_URI, { serverSelectionTimeoutMS: 10000 });
+    console.log("[mongo] connected");
+};
 
 module.exports = connectDB;
